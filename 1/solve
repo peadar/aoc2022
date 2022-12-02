@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+import sys
+
+infile = open(sys.argv[1])
+elves=[]
+elf = 0
+for l in infile:
+    l = l.strip()
+    if l == "":
+        elf += 1
+    else:
+        if len(elves) == elf:
+            elves.append([])
+        elves[elf].append(int(l))
+
+maxelf, maxcal = max( [ (elfno, sum(elf)) for (elfno,elf) in enumerate(elves)],
+            key=lambda t: t[1])
+print("part1: %d: %d" % ( maxelf + 1, maxcal ) )
+sorted_elves = sorted( [ (elfno, sum(elf)) for (elfno,elf) in enumerate(elves)], key=lambda t: t[1])
+print(f"part2: {sum(k for _k, k in sorted_elves[-3:])}")
+

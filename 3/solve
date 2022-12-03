@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+import sys
+with open(sys.argv[1] if len(sys.argv) > 1 else "input.txt") as f:
+    sacks = [l.strip() for l in f]
+def prio(char): return ord(char) + 1 - (ord('a') if char > 'a' else ord('A') - 26)
+def only(setofone): return next(iter(setofone))
+print("part1: %s\npart2: %s" % (
+    sum(prio(only(set(sack[:len(sack)//2]).intersection(set(sack[len(sack)//2:]))))
+        for sack in sacks),
+    sum(prio(id) for id in (only(set.intersection(*(set(item) for item in sacks[n:n+3])))
+        for n in range(0, len(sacks),3)))))

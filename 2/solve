@@ -1,0 +1,28 @@
+#!/usr/bin/python
+import sys
+
+rules1 = {
+        'X': { 'A': 3, 'B': 0, 'C': 6 },
+        'Y': { 'A': 6, 'B': 3, 'C': 0 },
+        'Z': { 'A': 0, 'B': 6, 'C': 3 },
+        }
+scores1 = { 'X': 1, 'Y': 2, 'Z': 3 }
+
+def part1(opponent, self):
+
+    return scores1[self] + rules1[self][opponent]
+
+rules2 = {
+        'X': { 'A': 'C', 'B': 'A', 'C': 'B' },
+        'Y': { 'A': 'A', 'B': 'B', 'C': 'C' },
+        'Z': { 'A': 'B', 'B': 'C', 'C': 'A' },
+        }
+scores2 = { 'A': 1, 'B': 2, 'C': 3, 'X': 0, 'Y': 3, 'Z': 6 }
+
+def part2(opponent, strategy):
+    return scores2[rules2[strategy][opponent]] + scores2[strategy]
+
+with open(sys.argv[1]) as inputfile:
+    pairs = [ l.split() for l in inputfile ]
+print("part1: %d" % sum(part1(*p) for p in pairs))
+print("part2: %d" % sum(part2(*p) for p in pairs))

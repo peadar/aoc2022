@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+import sys
+
+def getRanges(p):
+    l, r = ( int(i) for i in p.strip().split("-") )
+    return set(range(l, r + 1))
+
+def parseLine(line):
+    return [ getRanges(side) for side in  line.split(",") ]
+
+with open("input.txt") as f:
+    ls = [ parseLine(l) for l in f ]
+
+print("part1: %d" % sum(1 for (l,r) in ls if l.union(r) in [l,r]))
+print("part1: %d" % sum(1 for (l,r) in ls if l.intersection(r)))

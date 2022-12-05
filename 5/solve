@@ -8,17 +8,17 @@ def solve(f, op):
         if "[" in l:
             splits = [ l[s:s+4].strip() for s in range(0, len(l), 4) ]
             if stacks is None:
-                stacks = [ [] for _ in range(len(splits)) ]
+                stacks = [[] for _ in range(len(splits))]
             for tower, crate in enumerate(splits):
                 assert len(crate) == 3 or len(crate) == 0
                 if crate != "":
                     stacks[tower].append(crate[1])
         elif l.startswith("move"):
             count, frum, to = map(int, l.split()[1::2])
-            stacks[to-1] = list(op(stacks[frum-1][:count])) + stacks[to-1]
+            stacks[to-1] = op(stacks[frum-1][:count]) + stacks[to-1]
             stacks[frum-1] = stacks[frum-1][count:]
     return "".join([stack[0] for stack in stacks ])
 
 with open(sys.argv[1]) as f:
-    print(f"part1: {solve(f, reversed)}")
+    print(f"part1: {solve(f, lambda l: l[::-1])}")
     print(f"part2: {solve(f, lambda l: l)}")

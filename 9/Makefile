@@ -3,6 +3,8 @@ CXXFLAGS += -g --std=c++2a -Wall -Wextra -O3
 
 all: solve
 
+solve.s: solve.cc
+	$(CXX) -S -o $@ $^
 solve: solve.o
 	$(CXX) -o $@ $^
 

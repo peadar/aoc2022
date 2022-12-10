@@ -56,6 +56,7 @@ struct Machine {
 };
 
 void Machine::run(std::fstream &input) {
+    input.clear();
     input.seekg(0);
     for (std::string s; std::getline(input, s); ) {
         std::visit(*this, parse(s));
@@ -74,4 +75,13 @@ int main(int, char *argv[]) {
     }};
     m.run(in);
     std::cout << "part1: " << part1 << std::endl;
+
+    Machine part2{ [&part1](const Machine &m) {
+        Register rasterpos = (m.cycle - 1) % 40;
+        std::cout << (std::abs(rasterpos - m.x) <= 1 ? "#" : ".");
+        if (m.cycle % 40 == 0)
+            std::cout << "\n";
+    }};
+    std::cout << "part2:\n";
+    part2.run(in);
 }

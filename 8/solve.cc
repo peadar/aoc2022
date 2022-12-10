@@ -29,10 +29,10 @@ int doTree(const Forest &g, int row, int col) {
     int h = g[row][col];
     struct Rc { int row, col, dr, dc; };
     Rc dirs[] {
-        { row + 1, col, 1, 0 } ,
-        { row - 1, col, -1, 0 } ,
-        { row, col + 1, 0, 1 },
-        { row, col - 1, 0, -1 } ,
+        { row + 1, col    ,  1,  0 } ,
+        { row - 1, col    , -1,  0 } ,
+        { row,     col + 1,  0,  1 },
+        { row,     col - 1,  0, -1 } ,
     };
     int total = 1;
     for (auto &rc : dirs) {

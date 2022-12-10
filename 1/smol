@@ -1,0 +1,1 @@
+print(max([sum([int(y)for y in values.split("\n")])for values in open("input.txt").read().strip().split("\n\n")]))

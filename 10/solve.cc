@@ -1,12 +1,7 @@
-#include <functional>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
-#include <map>
 #include <variant>
-
-namespace {
+#include <functional>
+#include "aoc.h"
 
 struct Machine {
     using Register = long;
@@ -17,10 +12,7 @@ struct Machine {
     static Insn parse(std::string line);
     Register x, cycle;
     void operator() (const Noop&) { tick(); }
-    void operator() (const Addx& addx) {
-        tick(2);
-        x += addx.value;
-    }
+    void operator() (const Addx& addx) { tick(2); x += addx.value; }
     Machine(std::function<void(const Machine &)> watch) : watch(watch), x(1), cycle{1} {}
     void tick(int count = 1) {
         while (count--) {
@@ -32,16 +24,9 @@ struct Machine {
 };
 
 Machine::Insn Machine::parse(std::string line) {
-    std::vector<std::string> tokens;
-    for (size_t space; (space = line.find(' ')) != std::string::npos; ) {
-        tokens.push_back(line.substr(0, space));
-        line = line.substr(space + 1);
-    }
-    tokens.push_back(line);
-    if (tokens[0] == "noop")
-        return Noop{};
-    if (tokens[0] == "addx")
-        return Addx { std::stoi(tokens[1]) };
+    auto [ insnText, args ] = aoc::token(line);
+    if (insnText == "noop") return Noop{};
+    if (insnText == "addx") return Addx { std::stoi(std::string(std::get<0>(aoc::token(args)))) };
     throw std::runtime_error("invalid insn");
 }
 
@@ -51,13 +36,10 @@ void Machine::run(std::istream &input) {
     tick();
 }
 
-}
-
 void part1(std::istream &in, std::ostream &out) {
     Machine::Register part1 = 0;
-    Machine{ [&part1](const Machine &m) {
-        if ((m.cycle - 20) % 40 == 0 && m.cycle <= 220)
-            part1 += m.cycle * m.x;
+    Machine{[&part1](const Machine &m) {
+        if ((m.cycle - 20) % 40 == 0 && m.cycle <= 220) part1 += m.cycle * m.x;
     }}.run(in);
     out << "part1: " << part1 << std::endl;
 }
@@ -66,8 +48,7 @@ void part2(std::istream &in, std::ostream &out) {
     out << "part2:\n";
     Machine {[&out](const Machine &m) {
         Machine::Register rasterpos = (m.cycle - 1) % 40;
-        out << (std::abs(rasterpos - m.x) <= 1 ? "#" : " ");
-        if (m.cycle % 40 == 0)
-            out << "\n";
+        out << (std::abs(rasterpos - m.x) <= 1 ? '#' : ' ');
+        if (m.cycle % 40 == 0) out << "\n";
     }}.run(in);
 }

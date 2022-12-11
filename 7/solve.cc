@@ -5,6 +5,7 @@
 #include <string>
 #include <variant>
 #include <assert.h>
+#include "aoc.h"
 
 class Dir;
 struct Invalid{};
@@ -46,9 +47,7 @@ Size Dir::size() {
 
 void Dir::addent(const std::string &to) {
     // split into type/size and name
-    auto split = to.find(" ");
-    auto type = to.substr(0, split);
-    auto component = to.substr(split + 1);
+    auto [ type, component ] = aoc::token(to);
     auto &entry = entries[component];
     if (std::holds_alternative<Invalid>(entry)) {
         if (type == "dir")

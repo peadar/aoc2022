@@ -26,5 +26,6 @@ timeit(std::function<void(void)> f) {
     auto micros = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
     double secondsfloat = double(micros) / 1000000;
     auto persec = double(iters) / double(secondsfloat);
-    std::cout << "time taken: " << micros << "us, iterations=" << iters << ", per sec=" << (unsigned long long)(persec) << "\n";
+    auto perop = double(micros) / double(iters);
+    std::cout << "time taken: " << micros << "us, iterations=" << iters << ", operations per sec=" << (unsigned long long)(persec) << ", usec/operation: " << perop << "\n";
 }

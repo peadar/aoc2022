@@ -1,4 +1,4 @@
-CXXFLAGS += -g -O0 --std=c++17
+CXXFLAGS += -g -O0 --std=c++17 -I..
 .PHONY: all clean
 
 all: solve

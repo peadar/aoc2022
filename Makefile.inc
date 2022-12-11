@@ -11,6 +11,6 @@ solve: solve.o aoc-main.o timeit.o
 	$(CXX) -o $@ $^
 
 check: all
-	./solve ./input.txt timeout.o
+	./solve ./input.txt
 clean:
 	rm -f *.o solve

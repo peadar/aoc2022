@@ -1,4 +1,6 @@
-CXXFLAGS += -g --std=c++2a -Wall -Wextra -O3 -I..
+OPT ?= -O3
+CXXFLAGS += -g --std=c++2a -Wall -Wextra $(OPT) -I..
+
 .PHONY: all clean
 VPATH = ..
 

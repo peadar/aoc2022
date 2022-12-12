@@ -9,7 +9,7 @@ struct Machine {
     struct Noop {};
     struct Addx { Register value; };
     using Insn = std::variant<Noop, Addx>;
-    static Insn parse(std::string line);
+    static Insn parse(const std::string_view line);
     Register x, cycle;
     void operator() (const Noop&) { tick(); }
     void operator() (const Addx& addx) { tick(2); x += addx.value; }
@@ -23,10 +23,10 @@ struct Machine {
     void run(std::istream &input);
 };
 
-Machine::Insn Machine::parse(std::string line) {
+Machine::Insn Machine::parse(const std::string_view line) {
     auto [ insnText, args ] = aoc::token(line);
     if (insnText == "noop") return Noop{};
-    if (insnText == "addx") return Addx { std::stoi(std::string(std::get<0>(aoc::token(args)))) };
+    if (insnText == "addx") return Addx { std::stoi(std::get<0>(aoc::token(args))) };
     throw std::runtime_error("invalid insn");
 }
 

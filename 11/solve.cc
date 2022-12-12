@@ -79,7 +79,7 @@ template <typename T> void asvec(T& container,  std::string l, const string_view
 Monkey::Monkey(istream &is) {
     name = get<0>(splitline(is, ":"));
     auto starting = get<1>(splitline(is, "Starting items: "));
-    asvec<deque<long>>(items, starting, ", ", [](string_view sv) { return stol(string(sv)); });
+    asvec(items, starting, ", ", [](string_view sv) { return stol(string(sv)); });
     auto operation = get<1>(splitline(is, ": new = old "));
     std::vector<string> ops;
     asvec(ops, operation, " ", [](string_view sv) { return string(sv); });

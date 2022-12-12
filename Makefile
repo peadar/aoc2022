@@ -1,9 +1,5 @@
 MAKES=$(wildcard [0-9]*/Makefile )
+.DEFAULT_GOAL = check
 
-check:
-	for i in $(MAKES); do (cd $$(dirname $$i) && make check ); done
-
-clean:
-	for i in $(MAKES); do (cd $$(dirname $$i) && make clean ); done
-all:
-	for i in $(MAKES); do (cd $$(dirname $$i) && make all ); done
+%:
+	for i in $(MAKES); do make -C $$(dirname $$i) $@; done

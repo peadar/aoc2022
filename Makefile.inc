@@ -1,4 +1,4 @@
-OPT ?= -O3
+OPT ?= -O0 -pipe
 CXXFLAGS += -g --std=c++2a -Wall -Wextra $(OPT) -I..
 
 .PHONY: all clean

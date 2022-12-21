@@ -1,7 +1,7 @@
-CXXFLAGS = -g -O0 --std=c++17 -fno-omit-frame-pointer
+CXXFLAGS = -g -O3 --std=c++17 -fno-omit-frame-pointer
 
 test: all
-	@./solve < input.txt
+	@bash -c 'time ./solve < input.txt'
 
 all: solve
 solve: lexer.o parser.o solve.o

@@ -1,8 +1,8 @@
-
 #include "aoc.h"
+#include <map>
 #include <cassert>
 #include <unistd.h>
-
+#include <string.h>
 
 struct Point {
     int x, y;
@@ -40,38 +40,11 @@ enum Type : char {
 };
 
 struct Chamber {
-    std::vector<std::array<char, 7>> grid;
-    void dropShape(const RockShape &shape, std::istream &is);
+    std::vector<uint8_t> grid;
+    void dropShape(const RockShape &shape, const std::string jets, size_t &curoff);
     bool collide(const RockShape &shape, int x, int y);
-    void stamp(const RockShape &shape, int x, int y, Type);
-
-    void draw(const char *msg, const RockShape *rs, int x, int y);
+    void stamp(const RockShape &shape, int x, int y);
 };
-
-
-void Chamber::draw(const char *msg, const RockShape *rs, int rockx, int rocky) {
-    return;
-    std::cout << "\n" << msg << "\n";
-    int y = grid.size() - 1;
-    if (rs)
-        y = std::max(rocky, y);
-    for (; y >= 0; --y) {
-        std::cout << "|";
-        for (int x = 0; x < 7; ++x) {
-            char c = y < int(grid.size()) ? grid[y][x] : AIR;
-            if (rs) {
-                for (auto p : rs->matter)
-                    if (p.x == x - rockx && p.y == rocky - y)
-                        c = FALLING;
-            }
-            std::cout << c;
-        }
-        std::cout << "\n";
-    }
-    std::cout << "+-------+\n\n";
-    std::string in;
-    std::getline(std::cin, in);
-}
 
 bool Chamber::collide(const RockShape &shape, int x, int y) {
     for (auto &point : shape.matter) {
@@ -79,40 +52,29 @@ bool Chamber::collide(const RockShape &shape, int x, int y) {
         int xpos = x + point.x;
         if (xpos < 0 || xpos >= 7)
             return true;
-        if (ypos < 0 || ypos < grid.size() && grid[ypos][x + point.x] != AIR)
+        if (ypos < 0 || (ypos < int(grid.size()) && (grid[ypos] & (1 << (x + point.x)))))
             return true;
     }
     return false;
 }
 
-void Chamber::stamp(const RockShape &shape, int x, int y, Type type) {
+void Chamber::stamp(const RockShape &shape, int x, int y) {
     for (auto &point : shape.matter) {
         int yloc = y - point.y;
-        while (yloc >= (int)grid.size()) {
-            grid.emplace_back();
-            for (int i = 0; i < 7; ++i)
-                grid.back()[i] = AIR;
-        }
-        char &c = grid[yloc][x + point.x];
-        c = type;
+        while (yloc >= (int)grid.size())
+            grid.push_back(0);
+        grid[yloc] |= 1 << (x + point.x);
     }
 }
 
-
 void
-Chamber::dropShape(const RockShape &shape, std::istream &jets) {
+Chamber::dropShape(const RockShape &shape, const std::string jets, size_t &curoff) {
     int y = grid.size() + 3 + shape.height - 1;
     int x = 2;
-    draw("rock begins falling", &shape, x, y);
-    for (;;) {
-        char c = jets.get();
-        getppid();
 
-        if (jets.eof()) {
-            jets.clear();
-            jets.seekg(0);
-            continue;
-        }
+    for (;;) {
+        char c = jets[curoff % jets.size()];
+        curoff++;
 
         int newx;
         switch (c) {
@@ -129,31 +91,74 @@ Chamber::dropShape(const RockShape &shape, std::istream &jets) {
         }
         if (!collide(shape, newx, y))
             x = newx;
-        draw("rock moves with jet", &shape, x, y);
         if (y == 0 || collide(shape, x, y - 1))
             break;
         --y;
-        draw("rock moves down", &shape, x, y);
     }
-    stamp(shape, x, y, ROCK);
-    draw("rock landed", nullptr, 0, 0);
+    stamp(shape, x, y);
 }
 
 void
 part1(std::istream &in, std::ostream &out) {
     Chamber chamber;
 
+    std::string intext;
+    in >> intext;
+    size_t curoff = 0;
     int count = 0;
     while (count < 2022) {
-    for (auto &shape : shapes) {
-        chamber.dropShape(shape, in);
-        if (++count == 2022)
-            break;
+        for (auto &shape : shapes) {
+            chamber.dropShape(shape, intext, curoff);
+            if (++count == 2022)
+                break;
+        }
     }
-    }
-    std::cout << chamber.grid.size() << std::endl;
+    out << "part1: " << chamber.grid.size() << std::endl;
 }
 
 void
 part2(std::istream &in, std::ostream &out) {
+    Chamber chamber;
+
+    std::string intext;
+    in >> intext;
+    size_t curoff = 0;
+
+    size_t lastHeight = 0;
+    std::vector<uint8_t> turn2height; // won't extend more than 5 for each turn
+
+    constexpr size_t measuringPoint = 50'000; // allow some iterations to let things stabilize
+    constexpr size_t targetCount = 1'000'000'000'000;
+    constexpr size_t checkCount = 1000; // check for a reapeating pattern this long.
+
+    turn2height.reserve(measuringPoint);
+
+    for (;;) {
+        for (auto &shape : shapes) {
+            chamber.dropShape(shape, intext, curoff);
+            turn2height.push_back(chamber.grid.size() - lastHeight);
+            lastHeight = chamber.grid.size();
+            if (turn2height.size() == measuringPoint) {
+                // find a point where 1000 items repeat
+                auto base = turn2height.data() + turn2height.size() - checkCount;
+                auto cmp = turn2height.data() + turn2height.size() - checkCount - 1;
+                for (; cmp >= turn2height.data(); cmp--) {
+                    if (memcmp(base, cmp, checkCount) == 0) {
+                        size_t period = base - cmp;
+                        /* reconstitute the height difference across the entire range */
+                        size_t periodHeight = 0;
+                        for (size_t i = 0; i < period; ++i)
+                            periodHeight += turn2height[turn2height.size() - period + i];
+                        auto remainingPeriods = (targetCount - measuringPoint) / period;
+                        auto residuePeriod = (targetCount - measuringPoint) % period;
+                        size_t residueHeight = 0;
+                        for (size_t i = 0; i < residuePeriod; ++i)
+                            residueHeight += turn2height[turn2height.size() - period + i];
+                        out << "part2: " << chamber.grid.size() + remainingPeriods * periodHeight + residueHeight << "\n";
+                        return;
+                    }
+                }
+            }
+        }
+    }
 }

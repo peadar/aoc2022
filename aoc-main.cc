@@ -1,14 +1,28 @@
 #include "aoc.h"
 #include <fstream>
+#include <map>
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
     bool do_timeit = false;
-    for (int c; (c = getopt(argc, argv, "t")) != -1; ) {
+    std::map<int, partfn> todo;
+    for (int c; (c = getopt(argc, argv, "t12")) != -1; ) {
         switch (c) {
-            case 't':
+           case 't':
                 do_timeit = true;
+                break;
+           case '1':
+                todo[1] = part1;
+                break;
+           case '2':
+                todo[2] = part2;
+                break;
+
         }
+    }
+    if (todo.empty()){
+       todo[1] = part1;
+       todo[2] = part2;
     }
 
     std::fstream in(argv[optind]);
@@ -21,9 +35,9 @@ int main(int argc, char *argv[]) {
                 });
         return 0;
     }
-
-    part1(in, std::cout);
-    in.clear();
-    in.seekg(0);
-    part2(in, std::cout);
+    for (auto &[_, fn] : todo) {
+       fn(in, std::cout);
+       in.clear();
+       in.seekg(0);
+    }
 }

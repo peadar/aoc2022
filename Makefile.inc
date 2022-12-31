@@ -1,18 +1,18 @@
 OPT ?= -O0 -pipe
 CXXFLAGS += -g --std=c++2a -Wall -Wextra $(OPT) -I..
 
-.PHONY: all clean
+.PHONY: all clean local-clean
 VPATH = ..
 
 all: solve
 
-solve.s: solve.cc
-	$(CXX) -S -o $@ $^
+OBJS += solve.o aoc-main.o timeit.o
 
-solve: solve.o aoc-main.o timeit.o
+solve: $(OBJS)
 	$(CXX) -o $@ $^
 
 check: all
 	./solve ./input.txt
-clean:
+
+clean: local-clean
 	rm -f *.o solve

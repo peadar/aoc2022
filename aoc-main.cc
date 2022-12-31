@@ -26,18 +26,19 @@ int main(int argc, char *argv[]) {
     }
 
     std::fstream in(argv[optind]);
+
+    auto run = [&todo, &in] (std::ostream &out) {
+       for (auto &[_, fn] : todo) {
+          fn(in, out);
+          in.clear();
+          in.seekg(0);
+       }
+    };
+
     if (do_timeit) {
         std::fstream null("/dev/null");
-        timeit([&in, &null] {
-                part2(in, null);
-                in.clear();
-                in.seekg(0);
-                });
-        return 0;
-    }
-    for (auto &[_, fn] : todo) {
-       fn(in, std::cout);
-       in.clear();
-       in.seekg(0);
+        timeit([&run, &null] () { run(null); } );
+    } else {
+       run(std::cout);
     }
 }
